@@ -5,13 +5,41 @@
 // We need an http object that will be used to fetch APIs
 
 const http = require('http')
+const https = require('https')
 const url = require('url')
 const StringDecoder = require('string_decoder').StringDecoder
 var config = require('./config')
+var fs = require('fs')
 
 // We need to start a server
 
-const server = http.createServer(function(req, res){
+const httpServer = http.createServer(function(req, res){
+    unifiedServer(req, res)
+       
+})
+
+// That server will run on a specific port.
+httpServer.listen(config.httpPort, function(){
+    console.log(`The server is currently running on port ${config.httpPort}`)
+})
+
+var httpsServerOptions = {
+    'key': fs.readFileSync('./https/key.pem'),
+    'cert': fs.readFileSync('./https/cert.pem')
+
+}
+
+const httpsServer = https.createServer(httpsServerOptions, function(req, res){
+    unifiedServer(req, res)
+       
+})
+
+httpsServer.listen(config.httpsPort, function(){
+    console.log(`The server is currently running on port ${config.httpsPort}`)
+})
+
+
+var unifiedServer = function(req, res) {
     // We get the URL that the user has passed in
     const parsedUrl = url.parse(req.url, true);
     
@@ -56,29 +84,19 @@ const server = http.createServer(function(req, res){
         })
 
     })
-
-    // Get the headers
- 
-
-    
-})
-
-// That server will run on a specific port.
-server.listen(config.port, function(){
-    console.log(`The server is currently running on port ${config.port}`)
-})
+}
 
 let handlers = {}
-
-handlers.sample = function(data, callback){
-    callback(406, {'name': 'sample handler'})
-}
 
 handlers.notFound = function(data, callback){
     callback(404)
 }
 
+handlers.ping = function(data, callback){
+    callback(200,{'name': 'Emmanuel'})
+}
+
 let router = {
-    'sample': handlers.sample,
+    'ping': handlers.ping,
     // 'notFound': handlers.notFound
 }
