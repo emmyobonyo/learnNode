@@ -26,7 +26,7 @@ app.post("/comments", (req, res) => {
     if(!content) {
         return res.sendStatus(400);
     }
-    // console.log(comment)
+    // console.log(comme  nt)
     res.sendStatus(201)
 })
 
